@@ -82,7 +82,7 @@
       <include merge="true">
         <uri>package://ros_gz_example_description/models/diff_drive</uri>
       </include>
-
+      
       <plugin
         filename="ignition-gazebo-joint-state-publisher-system"
         name="ignition::gazebo::systems::JointStatePublisher">

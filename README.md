@@ -18,26 +18,26 @@ This project provides hands-on experience with ROS 2 and the Gazebo simulator.
 
 Pull the docker image containing ros2 humble and gazebo fortress
 
-    ```bash
-    docker pull ghcr.io/sloretz/ros:humble-simulation
-    ```
+```bash
+docker pull ghcr.io/sloretz/ros:humble-simulation
+```
 
 ### Installations
 
 1. Run the docker image **in the folder containing the clone of this repository**
 
     ```bash
-    docker run -it --rm --name="gazebo_simulator" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume="./gazebo_practical_work:/opt/catkin_ws:rw" --env="DISPLAY" -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR --gpus all --device=/dev/dri ghcr.io/sloretz/ros:humble-simulation bash
+    docker run -it --rm --name="gazebo_simulator" --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" --volume="./gazebo_practical_work:/opt/catkin_ws/src:rw" --env="DISPLAY" -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR --gpus all --device=/dev/dri ghcr.io/sloretz/ros:humble-simulation bash
     ```
 
-1. If it is the first run, install and build as follow
+1. If it is the first run, install and build as follow. You source /opt/ros/humble/setup.bash to set up your shell environment so it knows where ROS 2 is installed and how to find its tools, libraries, and packages.
 
     ```bash
-    apt update && apt install -y ros-humble-rviz2
-    cd ~/catkin_ws
-    source /opt/ros/<ROS_DISTRO>/setup.bash
+    apt update && apt install -y vim ros-humble-rviz2
+    cd /opt/catkin_ws
+    source /opt/ros/humble/setup.bash
     colcon build --cmake-args -DBUILD_TESTING=ON
-    . ~/catkin_ws/install/setup.sh
+    source /opt/catkin_ws/install/setup.sh
     ```
 
     and in another terminal
@@ -60,7 +60,7 @@ docker exec -it gazebo_simulator bash
 ```
 
 
-## Practical work
+## Practical work *(55 min)*
 
 ### Navigating the project *(5 min)*
 
@@ -137,7 +137,7 @@ To do so, we will need to bridge topics from gazebo to/from ros2. This will done
     <summary>Answer</summary>
 
     ```bash
-    ros2 run ros_gz_bridge parameter_bridge /diff_drive/odometry@nav_msgs/msg/Odometry@gz.msgs.Odometry
+    ros2 run ros_gz_bridge parameter_bridge /model/diff_drive/odometry@nav_msgs/msg/Odometry@gz.msgs.Odometry
     ```
     </details>
 
@@ -156,7 +156,7 @@ To do so, we will need to bridge topics from gazebo to/from ros2. This will done
 1. Bridge all the simulation topics
     <details>
         <summary>Answer</summary>
-        <code>ros2 run ros_gz_bridge parameter_bridge     --ros-args     -p config_file:=/root/catkin_ws/src/ros_gz_example_bringup/config/ros_gz_example_bridge.yaml</code>
+        <code>ros2 run ros_gz_bridge parameter_bridge     --ros-args     -p config_file:=/opt/catkin_ws/src/ros_gz_example_bringup/config/ros_gz_example_bridge.yaml</code>
     </details>
     <br>
 
@@ -279,13 +279,17 @@ If everything about this practical work is clear, you should be able to answer t
     </details>
     <br>
 
-1. What are the different steps to adding a new sensor to a model?
+1. What file format is commonly used for Gazebo world files?
     <details>
      <summary>Answer</summary>
-        1. Defining a sensor link to the model<br>
-        2. Adding a sensor plugin to the link<br>
-        3. Creating a joint between the sensor link and any of the model frame<br>
-        4. Bridging the gazebo topic to a ros2 topic 
+        <code>.sdf</code>
+    </details>
+    <br>
+
+1. When creating a new world file, In which path should it be located to be loaded properly?
+    <details>
+     <summary>Answer</summary>
+        <code>IGN_GAZEBO_RESOURCE_PATH</code>
     </details>
     <br>
 
@@ -299,37 +303,60 @@ If everything about this practical work is clear, you should be able to answer t
     </details>
     <br>
 
-1. The GPU lidar we are using is currently 2D. What should we do to make it 3D?
+1. What to change to have a faster computation of the lidar range?
     <details>
     <summary>Answer</summary>
+    Depending on the needs of the project
 
     ```diff
-        <lidar>
+        <sensor name='gpu_lidar' type='gpu_lidar'>
+          <pose>0 0 0 0 0 0</pose>
+          <topic>scan</topic>
+          <ignition_frame_id>diff_drive/lidar_link</ignition_frame_id>
+    -     <update_rate>10</update_rate>
+    +     <update_rate>5</update_rate>
+          <lidar>
             <scan>
               <horizontal>
-                <samples>640</samples>
+    -           <samples>640</samples>
+    +           <samples>300</samples>
                 <resolution>1</resolution>
-                <min_angle>-1.396263</min_angle>
-                <max_angle>1.396263</max_angle>
+    -           <min_angle>-1.396263</min_angle>
+    -           <max_angle>1.396263</max_angle>
+    +           <min_angle>-0.396263</min_angle>
+    +           <max_angle>0.396263</max_angle>
               </horizontal>
               <vertical>
                 <samples>1</samples>
                 <resolution>1</resolution>
-    -           <min_angle>0.0</min_angle>
-    -           <max_angle>0.0</max_angle>
-    +           <min_angle>-0.2</min_angle>
-    +           <max_angle>0.2</max_angle>
+                <min_angle>-0.0</min_angle>
+                <max_angle>0.0</max_angle>
               </vertical>
             </scan>
-        <!-- ... -->
-        </lidar>
+            <range>
+              <min>0.08</min>
+    -         <max>10.0</max>
+    +         <max>4.0</max>
+              <resolution>0.01</resolution>
+            </range>
+          </lidar>
+          <visualize>true</visualize>
+        </sensor>
     ```
     </details>
     <br>
 
-1. I have created and compiled (it's c++!) a new plugin but it is not loaded in my simulation. What could be the problem?
+1. I have created and compiled (it's c++!) a new plugin but it is not loading in my simulation. What could be the problem?
     <details>
      <summary>Answer</summary>
         Check the gazebo path variables:  <code>env | grep -Ei 'gazebo|ign|gz_'</code>
     </details>
     <br>
+
+### Bonus 1: Spawning multiple models
+
+Based on [this tutorial](https://gazebosim.org/docs/latest/ros2_spawn_model/), Use the empty world and spawn the robot models one by one in the world. Each model should publish their topics and be controllable without namespace issues.
+
+### Bonus 2: Spawning a new model
+
+Import the following [UAV model](https://gazebosim.org/docs/latest/ros2_spawn_model/) from fuel and add it to the current world.

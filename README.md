@@ -273,85 +273,17 @@ The current robot does not have any sensors. Using [this tutorial](https://gazeb
 If everything about this practical work is clear, you should be able to answer the following questions:
 
 1. Which command is used to source the ROS 2 Humble environment in a new terminal?
-    <details>
-     <summary>Answer</summary>
-        source /opt/ros/humble/setup.bash
-    </details>
-    <br>
 
 1. What file format is commonly used for Gazebo world files?
-    <details>
-     <summary>Answer</summary>
-        <code>.sdf</code>
-    </details>
-    <br>
 
 1. When creating a new world file, In which path should it be located to be loaded properly?
-    <details>
-     <summary>Answer</summary>
-        <code>IGN_GAZEBO_RESOURCE_PATH</code>
-    </details>
-    <br>
 
 1. What are the different steps to adding a new sensor to a model?
-    <details>
-     <summary>Answer</summary>
-        1. Defining a sensor link to the model<br>
-        2. Adding a sensor plugin to the link<br>
-        3. Creating a joint between the sensor link and any of the model frame<br>
-        4. Bridging the gazebo topic to a ros2 topic 
-    </details>
-    <br>
 
 1. What to change to have a faster computation of the lidar range?
-    <details>
-    <summary>Answer</summary>
-    Depending on the needs of the project
-
-    ```diff
-        <sensor name='gpu_lidar' type='gpu_lidar'>
-          <pose>0 0 0 0 0 0</pose>
-          <topic>scan</topic>
-          <ignition_frame_id>diff_drive/lidar_link</ignition_frame_id>
-    -     <update_rate>10</update_rate>
-    +     <update_rate>5</update_rate>
-          <lidar>
-            <scan>
-              <horizontal>
-    -           <samples>640</samples>
-    +           <samples>300</samples>
-                <resolution>1</resolution>
-    -           <min_angle>-1.396263</min_angle>
-    -           <max_angle>1.396263</max_angle>
-    +           <min_angle>-0.396263</min_angle>
-    +           <max_angle>0.396263</max_angle>
-              </horizontal>
-              <vertical>
-                <samples>1</samples>
-                <resolution>1</resolution>
-                <min_angle>-0.0</min_angle>
-                <max_angle>0.0</max_angle>
-              </vertical>
-            </scan>
-            <range>
-              <min>0.08</min>
-    -         <max>10.0</max>
-    +         <max>4.0</max>
-              <resolution>0.01</resolution>
-            </range>
-          </lidar>
-          <visualize>true</visualize>
-        </sensor>
-    ```
-    </details>
-    <br>
 
 1. I have created and compiled (it's c++!) a new plugin but it is not loading in my simulation. What could be the problem?
-    <details>
-     <summary>Answer</summary>
-        Check the gazebo path variables:  <code>env | grep -Ei 'gazebo|ign|gz_'</code>
-    </details>
-    <br>
+
 
 ### Bonus 1: Spawning multiple models
 

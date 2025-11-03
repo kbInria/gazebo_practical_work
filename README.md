@@ -24,6 +24,12 @@ docker pull ghcr.io/sloretz/ros:humble-simulation
 
 ### Installations
 
+1. Allow docker to connect to the X11 server (for the GUI)
+
+   ```bash
+   xhost +local:docker
+   ```
+
 1. Run the docker image **in the folder containing the clone of this repository**
 
     ```bash

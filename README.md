@@ -16,13 +16,21 @@ This project provides hands-on experience with ROS 2 and the Gazebo simulator.
 
 ### Requirements
 
-Pull the docker image containing ros2 humble and gazebo fortress
+Having a recent ubuntu version with docker installed ([installation guide](https://docs.docker.com/engine/install/ubuntu/)).
+
+Then, pull the docker image containing ros2 humble and gazebo fortress
 
 ```bash
 docker pull ghcr.io/sloretz/ros:humble-simulation
 ```
 
 ### Installations
+
+1. git clone this project
+
+   ```bash
+   git clone https://github.com/kbInria/gazebo_practical_work.git
+   ```
 
 1. Allow docker to connect to the X11 server (for the GUI)
 

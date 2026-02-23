@@ -73,6 +73,20 @@ docker pull ghcr.io/ros-navigation/nav2_docker:humble-nightly
 docker exec -it gazebo_simulator bash
 ```
 
+### Reminders
+
+#### Docker
+
+**Docker** is an OS‑level virtualization (or containerization) platform, which allows applications to share the host OS kernel instead of running a separate guest OS like in traditional virtualization.\
+This design makes Docker containers lightweight, fast, and portable, while keeping them isolated from one another.
+
+#### ROS2
+
+- a **node** should be responsible for a single, modular purpose, e.g. controlling the wheel motors or publishing the sensor data from a laser range-finder. Each node can send and receive data from other nodes via topics, services, actions, or parameters.
+- a **topic** acts as a bus for nodes to exchange messages. A node may publish data to any number of topics and simultaneously have subscriptions to any number of topics. (asynchronous)
+- a **service** is another method of communication for nodes in the ROS graph. Services are based on a call-and-response model versus the publisher-subscriber model of topics. (synchronous)
+
+![ros_node_topic_services](https://docs.ros.org/en/foxy/_images/Nodes-TopicandService.gif)
 
 ### Gazebo UI
 
@@ -120,6 +134,16 @@ ros2 topic pub --once /diff_drive/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 
 4. What is changing in rviz?
 
 
+> The robot in this simulation is called a differential drive wheeled robot. \
+> It is a robot whose movement is based on two separately driven wheels placed on either side of the robot body. \
+> It can be controlled by varying the relative rate of rotation of its wheel. \
+> In our case, we are using a differentail drive driver so that we can directly feed it
+> a linear and angular velocity commands (more human readable)
+>
+> ![diff_drive](images/diff_drive.png)
+
+
+
 ### TFs
 
 1. Add the `TF` topic in RVIZ
@@ -134,6 +158,14 @@ ros2 run tf2_tools view_frames
 ![tf_tree](./images/tf_tree.png)
 
 3. Check in `ros_gz_example_description/models/diff_drive/model.sdf` how the TFs are defined.
+
+> A **Transform** can be understand as: **where is an object with respect to another?**\
+> It can be **static** (transform between a fixed object and the world) or **dynamic** (pose of a robot in the world).\
+> ROS uses a framework called TFs that allows to get the relative pose of an object with respect to another easily and at any point of time.\
+> In the terminal, type `ros2 topic echo /tf`. What do you see?\
+> When designing a robot, you need to think which are the element of the robot that require a tf? \
+> In the following image, why did we place the tfs there?\
+> ![robot_tfs](./images/robot_tfs.png)
 
 
 <!-- Maybe add here the demo with joints https://control.ros.org/master/doc/ros2_control_demos/doc/index.html#using-docker -->
@@ -188,6 +220,19 @@ NOTE: it can take some time before gazebo is fully loaded. If it is too slow or 
 5. Now send a pose estimate **not quite** where you think the robot is and then a nav goal? What happen?
 
 
+> To navigate a known environment, a robot need the following components:
+>
+> **State estimation**: provide an accurate position of the robot on the map using sensor fusion and other techniques.\
+> **Path planning**: We usually differentiate them in two types: **global** planners that use the a priori knowledge of the environment (static) to compute a path and **local** planners that adjust to the current changes of the environment (dynamic).\
+> **Path following**: once the path has been computed and adjusted, a controller is dedicated to make the robot follow it.\
+> 
+>
+> Many other software components can be used depending on the difficulties of the scenario: **specific behavior controller** (charging a robot to a docker station, use a tool, etc...), **path smoother** (to ensure optimal and feasable paths), **collision checker** (fast detector which triggers safety stop), **recovery behaviors** (couple to a decision tree / state machine to decide what to do) 
+>
+> 
+> ![nav_stack](./images/nav_stack_ros2.png)
+
+
 ### SLAM
 
 1. After stopping the previous launch, launch the following:
@@ -208,3 +253,15 @@ ros2 run nav2_map_server map_saver_cli -f ~/map
 ```
 
 And check the result by doing `feh ~/map.pgm`
+
+> To help with robotics developers to understand each other, ROS came up with conventions. One of them define how the [generic tf tree](https://www.ros.org/reps/rep-0105.html) of a robot should look like.
+>
+> ![convention_tf_tree](./images/convention_tf_tree.png)
+>
+> When using mapping/localization and odometry, here is how the tfs are published:
+>
+> ![amcl_tf_tree](./images/amcl_tf_tree.png)
+>
+> **Odometry**: provide a smooth and continuous local frame based estimation of the robot position using the robot motion.\
+> **Global Localization**: provide an accurate position of the robot on a map.\
+
